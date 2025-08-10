@@ -183,4 +183,10 @@ class User extends Authenticatable implements Auditable
             'collection_name' => 'users',
         ]);
     }
+
+    // App\Models\User
+    public function shops()
+    {
+        return $this->hasMany(\App\Models\Shop::class, 'user_id');
+    }
 }

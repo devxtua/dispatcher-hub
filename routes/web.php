@@ -25,16 +25,41 @@ use App\Http\Controllers\AdminPermissionRoleController;
 use App\Http\Controllers\ForcePasswordChangeController;
 use App\Http\Controllers\AdminPersonalisationController;
 
+// Публичные
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/', [PageController::class, 'home'])->name('home');
 
-// Authenticated Routes
+// Страница установки Shopify
+Route::get('/shopify/install', function () {
+    return Inertia::render('Shopify/Install', [
+        'shop'     => request('shop'),
+        'appName'  => config('app.name'),
+        'appLogo'  => asset('images/shopify-logo.png'),
+        'apiKey'   => config('shopify-app.api_key'),
+    ]);
+})->name('shopify.install');
+
+// Общие для Laravel User И Shopify Shop
+Route::middleware(['web', 'either.user.or.shop'])->group(function () {
+    // Страницы
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/charts', [ChartController::class, 'index'])->name('chart.index');
+
+    // API для этих страниц
+    Route::prefix('api/dashboard')->group(function () {
+        Route::get('/financial-metrics', [DashboardController::class, 'refreshFinancialMetrics']);
+    });
+});
+
+// Только с Laravel 
 Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
     // Logout Route
     Route::post('logout', [LogoutController::class, 'destroy'])->name('logout');
 
     Route::middleware(['disable.account', 'force.password.change', 'password.expired'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+   
+        // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Route::get('charts', [ChartController::class, 'index'])->name('chart.index');
 
         // User Account Management Routes
         Route::prefix('user')->name('user.')->group(function () {
@@ -76,9 +101,6 @@ Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
                 Route::delete('account/sessions/{sessionId}', 'destroySession')->name('session.destroy');
             });
         });
-
-        // Chart Routes
-        Route::get('charts', [ChartController::class, 'index'])->name('chart.index');
 
         // Protected Routes requiring 2FA
         Route::middleware(['require.two.factor'])->group(function () {
@@ -175,6 +197,13 @@ Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
     });
 });
 
+// Только с Shopify
+Route::middleware(['web', 'verify.shopify'])
+    ->prefix('shop')->name('shop.')
+    ->group(function () {
+        Route::get('/', fn () => inertia('Shopify/Home'))->name('home');
+});
+
 // Documentation Routes
 Route::prefix('documentation')->name('documentation.')->group(function () {
     Route::controller(DocumentationController::class)->group(function () {
@@ -196,3 +225,10 @@ Route::middleware(['guest', 'web'])->group(function () {
         });
     });
 });
+
+
+
+
+
+
+

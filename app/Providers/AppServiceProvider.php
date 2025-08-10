@@ -58,7 +58,12 @@ class AppServiceProvider extends ServiceProvider
                     'version' => config('app.version'),
                     'name' => config('app.name'),
                 ],
-                'personalisation' => fn () => $personalisation
+                'personalisation' => fn () => $personalisation,
+                // добавляем auth данные
+                // 'auth' => fn () => [
+                //     'user' => auth('web')->user(),
+                //     'shop' => auth('shop')->user(),
+                // ],
             ]);
         }
     }

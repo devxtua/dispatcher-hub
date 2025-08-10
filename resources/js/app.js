@@ -1,3 +1,4 @@
+import './spa.js'
 import { createApp, h } from "vue";
 import { createInertiaApp, Link, router } from "@inertiajs/vue3";
 import { ZiggyVue } from "ziggy-js";

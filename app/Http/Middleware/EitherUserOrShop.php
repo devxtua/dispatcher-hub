@@ -17,28 +17,28 @@ class EitherUserOrShop
 
     public function handle(Request $request, Closure $next)
     {
-        // logger()->info('shopify headers', $request->headers->all());
-
-        // 1) Если пришёл SPA-токен, пробуем как Shopify СНАЧАЛА
+        // 1) Shopify SPA (App Bridge) — всегда с Bearer
         if ($request->bearerToken()) {
             try {
                 return $this->verifyShopify->handle($request, $next);
             } catch (\Throwable $e) {
-                // токен битый/протух — идём дальше, вдруг это обычный пользователь
+                // Токен невалиден/протух → фронту надо обновить токен
+                return response()->json(['message' => 'Unauthenticated'], 401);
             }
         }
 
-        // 2) Обычный пользователь (web guard + живая сессия)
+        // 2) Обычный веб-пользователь по сессии
         if (auth('web')->check()) {
             return $this->authenticateSession->handle($request, $next);
         }
 
-        // 3) Ни того, ни другого → для Shopify (SPA) вернём 401,
-        // App Bridge сам обновит токен и повторит запрос;
-        if ($request->expectsJson() || $request->header('X-Inertia')) {
+        // 3) Неавторизованы:
+        //    - если это не Inertia, а чистый API → 401 JSON
+        if ($request->expectsJson() && !$request->hasHeader('X-Inertia')) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
-        // для браузера — редирект на логин
-        return redirect()->route('login');
+
+        //    - Inertia/браузер → редирект на логин (Inertia обработает корректно)
+        return redirect()->guest(route('login'));
     }
 }

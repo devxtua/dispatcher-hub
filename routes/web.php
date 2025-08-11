@@ -30,14 +30,7 @@ Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/', [PageController::class, 'home'])->name('home');
 
 // Страница установки Shopify
-Route::get('/shopify/install', function () {
-    return Inertia::render('Shopify/Install', [
-        'shop'     => request('shop'),
-        'appName'  => config('app.name'),
-        'appLogo'  => asset('images/shopify-logo.png'),
-        'apiKey'   => config('shopify-app.api_key'),
-    ]);
-})->name('shopify.install');
+Route::get('/shopify/install', [PageController::class, 'install'])->name('shopify.install');
 
 // Общие для Laravel User И Shopify Shop
 Route::middleware(['web', 'either.user.or.shop'])->group(function () {

@@ -134,11 +134,6 @@ onUnmounted(() => {
                 <nav class="flex h-17 items-center px-4 gap-4 shadow-sm" role="navigation" aria-label="Primary navigation">
                     <!-- Logo Section -->
                     <section class="flex items-center gap-4" aria-label="GuacPanel logo and menu controls">
-                        <Link href="/" class="flex items-center text-xl font-semibold text-gray-800 dark:text-white"
-                            aria-label="Go to homepage">
-                        <Logo size="2.5rem" />
-                        </Link>
-
                         <button type="button" data-menu-button
                             class="rounded-lg p-2 text-gray-500 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer"
                             @click="toggleSidebar" aria-label="Toggle navigation menu" :aria-expanded="isSidebarOpen">
@@ -148,6 +143,12 @@ onUnmounted(() => {
                                     d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                             </svg>
                         </button>
+
+                        <Link href="/" class="flex items-center text-xl font-semibold text-gray-800 dark:text-white"
+                            aria-label="Go to homepage">
+                        <Logo size="2.5rem" />
+                        </Link>
+
                     </section>
 
                     <!-- Mobile Search Controls -->

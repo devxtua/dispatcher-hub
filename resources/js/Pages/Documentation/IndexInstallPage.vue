@@ -14,8 +14,8 @@ const searchQuery = ref('')
 const showBackToTop = ref(false)
 
 const codeExamples = {
-    cloneRepo: `git clone https://github.com/otatechie/guacpanel-tailwind.git
-cd guacpanel-tailwind`,
+    cloneRepo: `git clone https://github.com/otatechie/DispatcherHub-tailwind.git
+cd DispatcherHub-tailwind`,
 
     installDeps: `composer install
 npm install`,
@@ -86,7 +86,7 @@ onUnmounted(() => {
 
 <template>
 
-    <Head title="Installation - GuacPanel" />
+    <Head title="Installation - DispatcherHub" />
 
     <div id="prerequisites" class="max-w-7xl mx-auto lg:px-8">
         <div
@@ -102,7 +102,7 @@ onUnmounted(() => {
                     <h1 class="text-3xl md:text-4xl font-bold text-white">Getting Started</h1>
                 </div>
                 <p class="text-lg text-teal-100 dark:text-teal-200 max-w-3xl mb-8">
-                    Set up GuacPanel in minutes with this step-by-step guide. Build your Laravel admin interface with
+                    Set up DispatcherHub in minutes with this step-by-step guide. Build your Laravel admin interface with
                     authentication, permissions, and modern UI components ready to go.
                 </p>
                 <div class="flex flex-wrap gap-4">
@@ -114,7 +114,7 @@ onUnmounted(() => {
                         </svg>
                         Installation guide
                     </a>
-                    <a href="https://github.com/otatechie/guacpanel-tailwind" target="_blank"
+                    <a href="https://github.com/otatechie/DispatcherHub-tailwind" target="_blank"
                         class="inline-flex items-center px-6 py-3 rounded-lg bg-teal-500 text-white hover:bg-teal-400 transition-colors font-medium">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                             <path fill-rule="evenodd"

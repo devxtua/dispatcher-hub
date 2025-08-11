@@ -14,8 +14,8 @@ defineOptions({
 const { settings: { passwordlessLogin = true } = {} } = usePage().props
 
 const form = useForm({
-    email: 'ota@example.com',
-    password: 'password',
+    email: '',
+    password: '',
     remember: false,
 })
 

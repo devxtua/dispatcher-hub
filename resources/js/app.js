@@ -29,7 +29,7 @@ createInertiaApp({
         showSpinner: true,
     },
 
-    title: (title) => `${title} - GuacPanel`,
+    title: (title) => `${title} - DispatcherHub`,
 
     resolve: (name) => {
         const pages = import.meta.glob("./Pages/**/*.vue", { eager: true });

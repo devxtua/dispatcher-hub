@@ -420,7 +420,7 @@ onUnmounted(() => {
 
 <template>
 
-    <Head title="Features - GuacPanel" />
+    <Head title="Features - DispatcherHub" />
 
     <div id="introduction" class="max-w-7xl mx-auto lg:px-8">
         <div
@@ -436,7 +436,7 @@ onUnmounted(() => {
                     <h1 class="text-3xl md:text-4xl font-bold text-white">Core Features</h1>
                 </div>
                 <p class="text-lg text-teal-100 dark:text-teal-200 max-w-3xl mb-8">
-                    Build secure Laravel admin interfaces with GuacPanel's essential features: authentication,
+                    Build secure Laravel admin interfaces with DispatcherHub's essential features: authentication,
                     permissions, data tables, backup system, and activity tracking. Everything you need, ready to use.
                 </p>
                 <div class="flex flex-wrap gap-4">
@@ -472,7 +472,7 @@ onUnmounted(() => {
                 <div class="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10 mb-8">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Introduction</h3>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">
-                        GuacPanel is built on <strong>Laravel Fortify</strong>, which provides ready-to-use authentication features including login, registration, two-factor authentication, password reset, and email verification. Focus on building your app while Fortify handles the auth.
+                        DispatcherHub is built on <strong>Laravel Fortify</strong>, which provides ready-to-use authentication features including login, registration, two-factor authentication, password reset, and email verification. Focus on building your app while Fortify handles the auth.
                     </p>
                 </div>
 
@@ -664,7 +664,7 @@ onUnmounted(() => {
                             Built on <a href="https://spatie.be/docs/laravel-permission" target="_blank"
                                 class="border-b-2 border-blue-500 dark:border-blue-400">Spatie's
                                 Laravel-Permission</a>,
-                            GuacPanel offers fine-grained access control through an easy-to-use roles and
+                            DispatcherHub offers fine-grained access control through an easy-to-use roles and
                             permissions system. Manage everything through a clean UI - for managing users' roles,
                             and permissions.
                         </p>
@@ -685,7 +685,7 @@ onUnmounted(() => {
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-8">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Introduction</h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">
-                            Protect your Laravel app with GuacPanel's built-in security middleware. Handle account
+                            Protect your Laravel app with DispatcherHub's built-in security middleware. Handle account
                             status, password policies, and two-factor authentication automatically on every request.
                         </p>
                     </div>
@@ -785,7 +785,7 @@ onUnmounted(() => {
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-8">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Introduction</h3>
                         <p class="text-gray-600 dark:text-gray-400">
-                            GuacPanel provides a clean interface for <a href="https://spatie.be/docs/laravel-backup"
+                            DispatcherHub provides a clean interface for <a href="https://spatie.be/docs/laravel-backup"
                                 target="_blank" class="border-b-2 border-blue-500 dark:border-blue-400">Spatie's
                                 Laravel Backup</a>.
                             Create, download, and manage backups through the UI - no command line needed. Monitor
@@ -819,7 +819,7 @@ onUnmounted(() => {
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-8">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Introduction</h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">
-                            GuacPanel provides a powerful data table interface built on <a
+                            DispatcherHub provides a powerful data table interface built on <a
                                 href="https://tanstack.com/table/latest" target="_blank"
                                 class="border-b-2 border-blue-500 dark:border-blue-400">TanStack Table</a>. Our
                             <code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">Datatable</code>
@@ -940,7 +940,7 @@ onUnmounted(() => {
                     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-8">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Introduction</h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">
-                            GuacPanel integrates <a href="https://typesense.org" target="_blank"
+                            DispatcherHub integrates <a href="https://typesense.org" target="_blank"
                                 class="border-b-2 border-blue-500 dark:border-blue-400">Typesense</a>, a
                             lightning-fast, open-source search engine that provides typo-tolerant search functionality. Before
                             proceeding, ensure you have set up <a
@@ -1001,7 +1001,7 @@ onUnmounted(() => {
                             <div>
                                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">3. Federated Search</h4>
                                 <p class="text-gray-600 dark:text-gray-400 mb-4">
-                                    GuacPanel implements federated search to search across multiple collections simultaneously.
+                                    DispatcherHub implements federated search to search across multiple collections simultaneously.
                                     The search is handled by the <code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">FederatedSearch.vue</code>
                                     component.
                                 </p>
@@ -1054,7 +1054,7 @@ onUnmounted(() => {
                 <div class="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10">
                     <div class="space-y-4">
                         <div class="prose dark:prose-invert max-w-none">
-                            <p>GuacPanel automatically tracks all login activity, storing user details, timestamp,
+                            <p>DispatcherHub automatically tracks all login activity, storing user details, timestamp,
                                 IP, device info, and login status. The system uses Laravel events for logging and
                                 provides a dashboard view where you can filter logs by user, date, success/failure,
                                 and IP address.</p>
@@ -1069,7 +1069,7 @@ onUnmounted(() => {
                 <div class="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10">
                     <div class="space-y-4">
                         <div class="prose dark:prose-invert max-w-none">
-                            <p>GuacPanel uses <a href="https://laravel.com/docs/session" target="_blank"
+                            <p>DispatcherHub uses <a href="https://laravel.com/docs/session" target="_blank"
                                     class="border-b-2 border-blue-500 dark:border-blue-400">Laravel Sessions</a> to
                                 let users monitor and control their active sessions, showing device type, browser,
                                 and last activity. Users can log out from individual sessions or all devices at
@@ -1085,7 +1085,7 @@ onUnmounted(() => {
                 <div class="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10">
                     <div class="space-y-4">
                         <div class="prose dark:prose-invert max-w-none">
-                            <p>GuacPanel uses <a href="https://github.com/owen-it/laravel-auditing" target="_blank"
+                            <p>DispatcherHub uses <a href="https://github.com/owen-it/laravel-auditing" target="_blank"
                                     class="border-b-2 border-blue-500 dark:border-blue-400">Laravel Auditing </a> to
                                 track model changes, providing a clean interface to view, search, and filter all
                                 user activity logs.</p>
@@ -1100,7 +1100,7 @@ onUnmounted(() => {
                 <div class="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10">
                     <div class="space-y-4">
                         <div class="prose dark:prose-invert max-w-none">
-                            <p>GuacPanel uses <a href="https://pqina.nl/filepond/" target="_blank"
+                            <p>DispatcherHub uses <a href="https://pqina.nl/filepond/" target="_blank"
                                     class="border-b-2 border-blue-500 dark:border-blue-400">FilePond</a> to provide
                                 a modern file upload interface with drag-and-drop, image/PDF previews, size limits,
                                 and type validation.</p>
@@ -1158,7 +1158,7 @@ onUnmounted(() => {
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Google Fonts</h2>
                 <div class="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 md:p-8 hover:border-teal-500/50 dark:hover:border-teal-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10">
                     <div class="prose dark:prose-invert max-w-none">
-                        <p>GuacPanel uses <a href="https://github.com/spatie/laravel-google-fonts" target="_blank"
+                        <p>DispatcherHub uses <a href="https://github.com/spatie/laravel-google-fonts" target="_blank"
                                 class="border-b-2 border-blue-500 dark:border-blue-400">Spatie's Laravel Google
                                 Fonts</a> to provide self-hosted fonts with local caching for better performance.
                         </p>

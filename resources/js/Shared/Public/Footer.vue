@@ -8,7 +8,7 @@ const personalisation = page.props.personalisation || {}
 
 onMounted(async () => {
     try {
-        const response = await fetch('https://api.github.com/repos/otatechie/guacpanel-tailwind/releases/latest')
+        const response = await fetch('https://api.github.com/repos/otatechie/DispatcherHub-tailwind/releases/latest')
         const data = await response.json()
         if (data.tag_name) {
             version.value = data.tag_name
@@ -25,12 +25,12 @@ onMounted(async () => {
         <div class="mx-auto px-2 sm:px-6 lg:px-8 py-4">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center space-x-2 text-xs">
-                    <p>GuacPanel</p>
+                    <p>DispatcherHub</p>
                     <span class="text-gray-400">{{ version }}</span>
                 </div>
                 <div class="flex items-center space-x-4 text-xs">
                     <p class="text-gray-400">{{ personalisation.copyright_text || '© ' + new Date().getFullYear() + ' All rights reserved.' }}</p>
-                    <a href="https://github.com/otatechie/guacpanel-tailwind" target="_blank" rel="noopener noreferrer"
+                    <a href="https://github.com/otatechie/DispatcherHub-tailwind" target="_blank" rel="noopener noreferrer"
                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                         aria-label="GitHub">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

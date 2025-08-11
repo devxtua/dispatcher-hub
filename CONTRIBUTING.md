@@ -1,6 +1,6 @@
-# Contributing to GuacPanel
+# Contributing to DispatcherHub
 
-Thank you for considering contributing to GuacPanel! We welcome contributions from the community.
+Thank you for considering contributing to DispatcherHub! We welcome contributions from the community.
 
 ## How to Contribute
 

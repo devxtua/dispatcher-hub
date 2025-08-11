@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/d1256dda-6820-4e21-bcee-36c82ffab1fc" alt="GuacPanel Logo" width="200">
+  <img src="https://github.com/user-attachments/assets/d1256dda-6820-4e21-bcee-36c82ffab1fc" alt="DispatcherHub Logo" width="200">
 </div>
 
-# GuacPanel - Laravel Vue Admin Starter Kit
+# DispatcherHub - Laravel Vue Admin Starter Kit
 
 [![Laravel](https://img.shields.io/badge/Laravel-v11.x-FF2D20?style=flat&logo=laravel)](https://laravel.com)
 [![Vue.js](https://img.shields.io/badge/Vue.js-v3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
@@ -91,8 +91,8 @@ An opinionated Laravel starter kit built with Vue.js, Inertia.js, and Tailwind C
 
 1. Clone the repository
 ```bash
-git clone https://github.com/otatechie/guacpanel-tailwind.git
-cd guacpanel-tailwind
+git clone https://github.com/otatechie/DispatcherHub-tailwind.git
+cd DispatcherHub-tailwind
 ```
 
 2. Install dependencies
@@ -133,7 +133,7 @@ php artisan serve
 
 **🔗 External Resources**
 
-- [GuacPanel Documentation](https://guacpanel.com)
+- [DispatcherHub Documentation](https://DispatcherHub.com)
 - [Laravel Documentation](https://laravel.com/docs)
 - [Vue.js Documentation](https://vuejs.org/guide/introduction.html)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
@@ -144,7 +144,7 @@ php artisan serve
 
 ## 🚀 Live Demo
 
-**[👀 View Live Demo](https://guacpanel.com)**
+**[👀 View Live Demo](https://DispatcherHub.com)**
 
 ## Contributing
 

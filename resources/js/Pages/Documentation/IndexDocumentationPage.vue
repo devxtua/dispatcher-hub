@@ -71,7 +71,7 @@ onUnmounted(() => {
 
 <template>
 
-    <Head title="Introduction - GuacPanel" />
+    <Head title="Introduction - DispatcherHub" />
 
     <div id="introduction" class="max-w-7xl mx-auto lg:px-8">
         <div
@@ -87,7 +87,7 @@ onUnmounted(() => {
                     <h1 class="text-3xl md:text-4xl font-bold text-white">Introduction</h1>
                 </div>
                 <p class="text-lg text-teal-100 dark:text-teal-200 max-w-3xl mb-8">
-                    Jumpstart your Laravel projects with GuacPanel - a modern VILT stack kit featuring Fortify
+                    Jumpstart your Laravel projects with DispatcherHub - a modern VILT stack kit featuring Fortify
                     authentication, Spatie's powerful trio (Permissions, Backup, Auditing), and TanStack Table
                     integration.
                 </p>
@@ -100,7 +100,7 @@ onUnmounted(() => {
                         </svg>
                         Start building now
                     </a>
-                    <a href="https://github.com/otatechie/guacpanel-tailwind" target="_blank"
+                    <a href="https://github.com/otatechie/DispatcherHub-tailwind" target="_blank"
                         class="inline-flex items-center px-6 py-3 rounded-lg bg-teal-500 text-white hover:bg-teal-400 transition-colors font-medium">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                             <path fill-rule="evenodd"

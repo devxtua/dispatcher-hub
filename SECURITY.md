@@ -4,7 +4,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within GuacPanel, please send an email to Ato Augustine at **ato@tuta.com**. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within DispatcherHub, please send an email to Ato Augustine at **ato@tuta.com**. All security vulnerabilities will be promptly addressed.
 
 ## What to Include
 
@@ -17,11 +17,11 @@ When reporting a security vulnerability, please include:
 
 ## Supported Versions
 
-We provide security updates for the latest version of GuacPanel. Please ensure you're using the most recent release.
+We provide security updates for the latest version of DispatcherHub. Please ensure you're using the most recent release.
 
 ## Security Best Practices
 
-When using GuacPanel, please:
+When using DispatcherHub, please:
 
 - Keep all dependencies up to date
 - Use strong passwords and enable 2FA
@@ -29,4 +29,4 @@ When using GuacPanel, please:
 - Monitor authentication logs
 - Keep your Laravel installation updated
 
-Thank you for helping keep GuacPanel secure! 
+Thank you for helping keep DispatcherHub secure! 

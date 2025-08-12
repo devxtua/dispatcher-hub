@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
 use Osiset\ShopifyApp\Traits\ShopModel;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\KanbanColumn;
 
 class Shop extends Authenticatable implements IShopModel
 {
@@ -52,5 +54,10 @@ class Shop extends Authenticatable implements IShopModel
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+    
+    public function kanbanColumns()
+    {
+        return $this->morphMany(\App\Models\KanbanOrderColumn::class, 'ownerable');
     }
 }

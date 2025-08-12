@@ -24,6 +24,8 @@ use App\Http\Controllers\AdminSystemNoticeController;
 use App\Http\Controllers\AdminPermissionRoleController;
 use App\Http\Controllers\ForcePasswordChangeController;
 use App\Http\Controllers\AdminPersonalisationController;
+use App\Http\Controllers\KanbanOrderCardController;
+use App\Http\Controllers\KanbanOrderColumnController;
 
 // Публичные
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
@@ -38,11 +40,29 @@ Route::middleware(['web', 'either.user.or.shop'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/charts', [ChartController::class, 'index'])->name('chart.index');
 
-    // API для этих страниц
-    Route::prefix('api/dashboard')->group(function () {
-        Route::get('/financial-metrics', [DashboardController::class, 'refreshFinancialMetrics']);
+    // Канбан (заказы)
+    Route::controller(KanbanOrderCardController::class)->group(function () {
+        Route::get('/shopify/kanban', 'index')->name('shopify.kanban');
+
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::put('{orderId}/move', 'move')->name('move');
+            Route::put('reorder', 'reorder')->name('reorder');
+            Route::put('{orderId}/note', 'note')->name('note');
+        });
+    });
+
+
+    // Колонки
+    Route::controller(KanbanOrderColumnController::class)->group(function () {
+        Route::prefix('kanban')->name('kanban.')->group(function () {
+            Route::post('columns', 'store')->name('columns.store');
+            Route::put('columns/reorder', 'reorder')->name('columns.reorder');
+            Route::put('columns/{code}', 'update')->name('columns.update');           
+            Route::delete('columns/{code}', 'destroy')->name('columns.destroy');              
+        });
     });
 });
+
 
 // Только с Laravel 
 Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
@@ -191,9 +211,7 @@ Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
 });
 
 // Только с Shopify
-Route::middleware(['web', 'verify.shopify'])
-    ->prefix('shop')->name('shop.')
-    ->group(function () {
+Route::middleware(['web', 'verify.shopify'])->prefix('shop')->name('shop.')->group(function () {    
         Route::get('/', fn () => inertia('Shopify/Home'))->name('home');
 });
 

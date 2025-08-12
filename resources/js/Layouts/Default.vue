@@ -206,7 +206,7 @@ onUnmounted(() => {
             <main class="flex-1" role="main" :class="['px-4 sm:px-6 lg:px-8', isSidebarOpen ? 'md:ml-64' : 'md:ml-0']"
                 :style="{ paddingTop: headerHeight }">
                 <FlashMessage />
-                <article class="py-8">
+                <article>
                     <slot />
                 </article>
             </main>

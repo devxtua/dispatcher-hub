@@ -15,6 +15,8 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\KanbanColumn;
 
 class User extends Authenticatable implements Auditable
 {
@@ -188,5 +190,10 @@ class User extends Authenticatable implements Auditable
     public function shops()
     {
         return $this->hasMany(\App\Models\Shop::class, 'user_id');
+    }
+
+    public function kanbanColumns()
+    {
+        return $this->morphMany(\App\Models\KanbanOrderColumn::class, 'ownerable');
     }
 }

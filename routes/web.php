@@ -26,6 +26,7 @@ use App\Http\Controllers\ForcePasswordChangeController;
 use App\Http\Controllers\AdminPersonalisationController;
 use App\Http\Controllers\KanbanOrderCardController;
 use App\Http\Controllers\KanbanOrderColumnController;
+use App\Http\Controllers\ShopifyWebhookController;
 
 // Публичные
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
@@ -77,8 +78,6 @@ Route::middleware(['web', 'either.user.or.shop'])->group(function () {
         Route::post('/typesense/multi-search', [TypesenseController::class, 'multiSearch']);
     });
 });
-
-
 
 // Только с Laravel 
 Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
@@ -248,6 +247,21 @@ Route::middleware(['guest', 'web'])->group(function () {
         });
     });
 });
+
+Route::middleware(['web', 'auth.webhook'])->group(function () {
+    Route::prefix('webhook')->name('webhook.')->group(function () {
+        Route::controller(ShopifyWebhookController::class)->group(function () {
+            // Shopify → Orders
+            Route::post('/orders/create',  'ordersCreate')->name('orders.create');
+            Route::post('/orders/updated', 'ordersUpdated')->name('orders.updated');
+
+            // при желании добавишь ещё:
+            // Route::post('/orders/paid',     'ordersPaid')->name('orders.paid');
+            // Route::post('/orders/cancelled','ordersCancelled')->name('orders.cancelled');
+        });
+    });
+});
+
 
 
 

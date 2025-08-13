@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Log;
 
 class VerifyCsrfToken extends Base
 {
-    protected $except = ['magic/*'];
+    protected $except = [
+        'magic/*',
+        'webhook/*',
+    ];
 
     // ВАЖНО: сигнатура без тип-хинтов, чтобы совпасть с базовой
     public function handle($request, Closure $next)

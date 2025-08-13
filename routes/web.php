@@ -36,32 +36,48 @@ Route::get('/shopify/install', [PageController::class, 'install'])->name('shopif
 
 // Общие для Laravel User И Shopify Shop
 Route::middleware(['web', 'either.user.or.shop'])->group(function () {
+
     // Страницы
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/charts', [ChartController::class, 'index'])->name('chart.index');
-
-    // Канбан (заказы)
     Route::controller(KanbanOrderCardController::class)->group(function () {
         Route::get('/shopify/kanban', 'index')->name('shopify.kanban');
+    });
 
+    // Заказы (write эндпоинты)
+    Route::controller(KanbanOrderCardController::class)->group(function () {
         Route::prefix('orders')->name('orders.')->group(function () {
-            Route::put('{orderId}/move', 'move')->name('move');
+            // статический путь выше динамических
             Route::put('reorder', 'reorder')->name('reorder');
+
+            Route::put('{orderId}/move', 'move')->name('move');
             Route::put('{orderId}/note', 'note')->name('note');
         });
     });
 
-
-    // Колонки
+    // Колонки (write эндпоинты)
     Route::controller(KanbanOrderColumnController::class)->group(function () {
         Route::prefix('kanban')->name('kanban.')->group(function () {
             Route::post('columns', 'store')->name('columns.store');
+
+            // статический — выше динамического
             Route::put('columns/reorder', 'reorder')->name('columns.reorder');
-            Route::put('columns/{code}', 'update')->name('columns.update');           
-            Route::delete('columns/{code}', 'destroy')->name('columns.destroy');              
+
+            Route::put('columns/{code}', 'update')
+                ->where('code', '(?!reorder$)[A-Za-z0-9\-_]+')
+                ->name('columns.update');
+
+            Route::delete('columns/{code}', 'destroy')->name('columns.destroy');
         });
     });
+
+    // Typesense — без 'auth', но с троттлом. either.user.or.shop сам ограничит доступ.
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('/typesense/scoped-key', [TypesenseController::class, 'getScopedKey']);
+        Route::post('/typesense/multi-search', [TypesenseController::class, 'multiSearch']);
+    });
 });
+
 
 
 // Только с Laravel 
@@ -202,11 +218,7 @@ Route::middleware(['web', 'auth', 'auth.session'])->group(function () {
             Route::get('/financial-metrics', [DashboardController::class, 'refreshFinancialMetrics']);
         });
 
-        // Typesense routes
-        Route::middleware(['auth', 'throttle:60,1'])->group(function () {
-            Route::get('/typesense/scoped-key', [TypesenseController::class, 'getScopedKey']);
-            Route::post('/typesense/multi-search', [TypesenseController::class, 'multiSearch']);
-        });
+
     });
 });
 

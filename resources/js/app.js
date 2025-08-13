@@ -1,3 +1,7 @@
+
+import { patchFetchForShopify } from './bootstrapShopifyFetch';
+patchFetchForShopify();
+
 import './spa.js'
 import { createApp, h } from "vue";
 import { createInertiaApp, Link, router } from "@inertiajs/vue3";

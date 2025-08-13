@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Osiset\ShopifyApp\Http\Middleware\VerifyShopify;
+use Illuminate\Support\Facades\Log;
 
 class EitherUserOrShop
 {
@@ -18,21 +19,7 @@ class EitherUserOrShop
     public function handle(Request $request, Closure $next)
     {
         
-        // dd([
-        // 'method'  => $request->method(),
-        // 'url'     => $request->fullUrl(),
-        // 'route'   => $request->route()?->uri(),
-        // 'params'  => $request->route()?->parameters(), // {orderId} и т.п.
-        // 'query'   => $request->query(),                // ?a=1&b=2
-        // 'body'    => $request->all(),                  // JSON/form data
-        // 'raw'     => $request->getContent(),           // сырое тело
-        // 'files'   => $request->allFiles(),
-        // 'headers' => $request->headers->all(),
-        // 'bearer'  => $request->bearerToken(),
-        // 'ip'      => $request->ip(),
-        // 'cookies' => $request->cookies->all(),
-        // 'user'    => optional($request->user())->only(['id','email']),
-        // ]);
+
         
         // 1) Shopify SPA (App Bridge) — всегда с Bearer
         if ($request->bearerToken()) {

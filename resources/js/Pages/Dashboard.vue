@@ -20,7 +20,7 @@ const props = defineProps({
 })
 
 const page = usePage()
-const userName = computed(() => page.props.auth.user?.name || 'User')
+const userName = computed(() => page.props.auth.user?.name || '')
 
 const formattedDate = computed(() => {
     const date = new Date()
@@ -113,11 +113,11 @@ const stocks = ref([
                         {{ formattedDate.display }}
                     </time>
                 </div>
-                <p class="text-gray-600 dark:text-gray-400">Here's what's happening with your portfolio today.</p>
+                <p class="text-gray-600 dark:text-gray-400">Today’s update on your company.</p>
             </header>
 
             <!-- Metrics Widgets -->
-            <section class="mb-10">
+            <!-- <section class="mb-10">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Metric Widgets</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <MetricWidget title="Total Revenue" :value="84621" trend="up" :change="12.5" :svg="icons.revenue"
@@ -129,10 +129,10 @@ const stocks = ref([
                     <MetricWidget title="Avg. Response Time" value="284ms" trend="up" :change="15.3"
                         :svg="icons.response" color="rose" />
                 </div>
-            </section>
+            </section> -->
 
             <!-- Stock Widgets -->
-            <section class="mb-10">
+            <!-- <section class="mb-10">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Stock Widgets</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StockWidget :stock="stocks[0]" :src="stocks[0].icon" :alt="stocks[0].name"
@@ -144,10 +144,10 @@ const stocks = ref([
                     <StockWidget :stock="stocks[3]" :src="stocks[3].icon" :alt="stocks[3].name"
                         :bg-color="stocks[3].bgColor" size="lg" />
                 </div>
-            </section>
+            </section> -->
 
             <!-- Achievements Widget-->
-            <section class="mb-10">
+            <!-- <section class="mb-10">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Achievement Widgets</h2>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 w-full mx-auto max-w-8xl">
                     <AchievementWidget title="Expert Chat & Call Minutes" value="75K+" viewBox="0 0 50 50"
@@ -159,10 +159,10 @@ const stocks = ref([
                     <AchievementWidget title="App Downloads" value="1.5M+" viewBox="0 0 51 50"
                         color="text-blue-500 dark:text-blue-400" :svg="icons.appDownloads" />
                 </div>
-            </section>
+            </section> -->
 
             <!-- Stats Widgets -->
-            <section class="mb-10">
+            <!-- <section class="mb-10">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Stats Overview</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatWidget v-for="(stat, index) in stats" :key="index" :title="stat.title" :value="stat.value"
@@ -173,7 +173,7 @@ const stocks = ref([
                                 stat.title.includes('Session') ? icons.projects :
                                     icons.tasks" />
                 </div>
-            </section>
+            </section> -->
         </div>
     </main>
 </template>

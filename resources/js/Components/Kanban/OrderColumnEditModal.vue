@@ -1,3 +1,9 @@
+// Модалка колонки Kanban (Vue 3 + Tailwind):
+// Поля: name/desc и цвет (color input, HEX, мини-палитра webSafePalette). Валидация HEX.
+// Пропсы: modelValue (v-model), mode ('create'|'edit'), form, canDelete.
+// События: update:modelValue(false), save, delete. Закрытие по Esc и клику на оверлей.
+
+
 <script setup>
 import { webSafePalette, normalizeHex } from '../../utils/colors'
 import { ref, computed, nextTick } from 'vue'

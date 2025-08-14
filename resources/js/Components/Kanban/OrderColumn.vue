@@ -1,22 +1,54 @@
+<!-- resources/js/Components/Kanban/OrderColumn.vue -->
 <script setup>
 import { vDraggable } from 'vue-draggable-plus'
 import TaskCard from './OrderColumnCard.vue'
 
 const props = defineProps({
-  col: { type: Object, required: true },   // { id, name, desc, hex, tasks: [] }
-  idx: { type: Number, required: true },   // индекс в общем списке колонок
+  col: { type: Object, required: true }, // { id, name, desc?, hex, tasks: [] }
+  idx: { type: Number, required: true },
+  // ключ-«счётчик» для форс-реинициализации Sortable (меняется в родителе)
+  refresh: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['edit', 'tasks-end'])
+const emit = defineEmits(['edit', 'tasks-start', 'tasks-end'])
 
-function onTasksEnd() {
-  emit('tasks-end', props.col)
+function onTasksStart() {
+  emit('tasks-start')
+}
+
+function onTasksEnd(evt) {
+  emit('tasks-end', {
+    fromId: evt.from?.dataset?.colId ?? null,
+    toId:   evt.to?.dataset?.colId ?? null,
+    taskId: evt.item?.dataset?.taskId ?? null,
+    oldIdx: evt.oldIndex ?? null,
+    newIdx: evt.newIndex ?? null,
+  })
+}
+
+// Единые «чистые» опции для перетаскивания карточек
+const taskDragOptions = {
+  group: { name: 'kanban-tasks', pull: true, put: true },
+  animation: 200,
+  // handle: '.drag-handle', // верни и добавь .drag-handle в карточку, если нужна «ручка»
+  filter: 'textarea, input, button, .is-editing',
+  preventOnFilter: false,
+  ghostClass: 'drag-ghost',
+  chosenClass: 'drag-chosen',
+  fallbackOnBody: true,
+  setData: (dt) => { try { dt.setData('text/plain', '') } catch {} }, // Safari fix
+  onMove: (evt) => {
+    // Разрешаем дроп только в валидный список задач
+    return !!evt?.to?.classList?.contains('task-list')
+  },
+  onStart: onTasksStart,
+  onEnd: onTasksEnd,
 }
 </script>
 
 <template>
   <div
-    class="min-w-[300px] max-w-[300px] rounded-md bg-transparent"
+    class="kanban-col flex-none rounded-md bg-transparent"
     :class="idx === 0 ? 'is-static' : 'col-draggable'"
   >
     <!-- Header -->
@@ -56,20 +88,24 @@ function onTasksEnd() {
     </div>
 
     <!-- Tasks list (draggable) -->
-    <div class="rounded-b-md border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+    <div class="rounded-b-md border border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+      <!-- ключ для форс-рендера Sortable -->
       <div
-        v-draggable="[
-          col.tasks,
-          {
-            group: { name: 'kanban-tasks', pull: true, put: true },
-            animation: 200,
-            onEnd: onTasksEnd
-          }
-        ]"
-        class="flex flex-col gap-2 p-2 px-0 overflow-y-auto"
+        :key="'tasks-'+(col.code ?? col.id)+'-'+refresh"
+        v-draggable="[col.tasks, taskDragOptions]"
+        class="task-list flex flex-col gap-2 p-2 px-0 overflow-y-auto"
         :style="{ maxHeight: 'calc(100vh - 260px)' }"
+        :data-col-id="col.code ?? col.id"
       >
-        <TaskCard v-for="task in col.tasks" :key="task.id" :task="task" />
+        <!-- ВАЖНО: Оборачиваем TaskCard, чтобы на DOM-узле был data-task-id и класс task-card -->
+        <div
+          v-for="task in col.tasks"
+          :key="task.id"
+          class="task-card"
+          :data-task-id="task.id"
+        >
+          <TaskCard :task="task" />
+        </div>
 
         <div
           v-if="!col.tasks?.length"
@@ -81,3 +117,12 @@ function onTasksEnd() {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Первая и так не двигается (в отдельном контейнере) */
+.is-static {}
+
+/* Визуальные классы для Sortable */
+.drag-ghost { opacity: .5; }
+.drag-chosen { opacity: .9; }
+</style>

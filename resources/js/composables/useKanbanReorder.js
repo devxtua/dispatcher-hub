@@ -1,3 +1,19 @@
+// Сетка Kanban: composable `useKanbanReorder`
+// - Управляет перестановкой колонок (drag & drop) и фиксирует первую колонку:
+//   дроп на индекс 0 запрещён.
+// - Ведёт историю порядка (undo/redo) с лимитом 50 через стеки `past` и `future`.
+// - Локально применяет новый порядок (`applyOrder`) и синхронизирует его с сервером
+//   в `onEnd` через `KanbanApi.reorderColumns` (оптимистичное обновление).
+// - DnD-хуки: `onStart` — снимает «снимок» текущих id, `onMove` — вычисляет целевой
+//   индекс и валидирует перенос, `onEnd` — сохраняет порядок.
+// - Служебное: `snapshotIds()` возвращает id колонок (кроме первой),
+//   `savingOrder` — флаг процесса сохранения.
+// - Публичное API: { past, future, savingOrder, snapshotIds, applyOrder,
+//   onMove, onStart, onEnd, undo, redo }.
+// - Ожидает `columnsRef`: реактивный массив колонок, где [0] — «закреплённая» колонка.
+// 
+
+
 import { ref, nextTick } from 'vue'
 import { KanbanApi } from '../api/kanban'
 

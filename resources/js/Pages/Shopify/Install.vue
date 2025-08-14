@@ -19,7 +19,7 @@ const busy = ref(false)
 
 // OAuth config (ensure redirect is whitelisted in your app settings)
 const APP_REDIRECT = 'https://tandooria.com/authenticate'
-const SCOPES = ['read_products', 'write_products'] // add yours
+const SCOPES = ['read_orders','write_orders'] // add yours
 
 // Helpers
 function cleanShop(raw) {

@@ -6,13 +6,22 @@ use App\Models\KanbanOrderCard;
 use Illuminate\Http\Request;
 use Osiset\ShopifyApp\Objects\Values\ShopDomain;
 use Osiset\ShopifyApp\Storage\Queries\Shop as ShopQuery;
+use Illuminate\Support\Str;
 
 class ShopifyWebhookController extends Controller
 {
     public function ordersCreate(Request $request)
     {
-        // в начале метода
-        \Log::info('ordersCreate payload', $request->all());
+        // \Log::info('ordersCreate payload', $request->all());
+        
+        // $data = $request->all();
+        // $pretty = json_encode(
+        //     $data,
+        //     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        // );
+        // \Log::info("ordersCreate payload:\n{$pretty}");
+
+
 
         $shop = $this->resolveShop($request);
         if (!$shop) return response()->noContent();

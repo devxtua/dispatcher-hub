@@ -4,19 +4,16 @@ import { vDraggable } from 'vue-draggable-plus'
 import TaskCard from './OrderColumnCard.vue'
 
 const props = defineProps({
-  col: { type: Object, required: true }, // { id, name, desc?, hex, tasks: [] }
+  col: { type: Object, required: true },
   idx: { type: Number, required: true },
-  // ключ-«счётчик» для форс-реинициализации Sortable (меняется в родителе)
   refresh: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['edit', 'tasks-start', 'tasks-end'])
+const emit = defineEmits(['edit', 'tasks-start', 'tasks-end', 'tasks-move'])
 
-function onTasksStart() {
-  emit('tasks-start')
-}
+const onTasksStart = () => emit('tasks-start')
 
-function onTasksEnd(evt) {
+const onTasksEnd = (evt) => {
   emit('tasks-end', {
     fromId: evt.from?.dataset?.colId ?? null,
     toId:   evt.to?.dataset?.colId ?? null,
@@ -26,31 +23,37 @@ function onTasksEnd(evt) {
   })
 }
 
-// Единые «чистые» опции для перетаскивания карточек
+// пробрасываем clientY (на будущее), сейчас поведение по ховеру квадрата
+const onTasksMove = (evt, originalEvent) => {
+  const oe = originalEvent || evt?.originalEvent || evt
+  const pt = (oe && oe.touches && oe.touches[0]) || oe
+  const y  = (pt && typeof pt.clientY === 'number') ? pt.clientY : null
+  if (y != null) emit('tasks-move', { clientY: y })
+
+  // Разрешаем перемещение над списками и над квадратиком (класс .compact-zone)
+  const to = evt?.to
+  return !!(to && (to.classList?.contains('task-list') || to.classList?.contains('compact-zone')))
+}
+
 const taskDragOptions = {
   group: { name: 'kanban-tasks', pull: true, put: true },
   animation: 200,
-  // handle: '.drag-handle', // верни и добавь .drag-handle в карточку, если нужна «ручка»
   filter: 'textarea, input, button, .is-editing',
   preventOnFilter: false,
   ghostClass: 'drag-ghost',
   chosenClass: 'drag-chosen',
+  // главное для стабильного ховера в iframe:
+  forceFallback: true,
   fallbackOnBody: true,
   setData: (dt) => { try { dt.setData('text/plain', '') } catch {} }, // Safari fix
-  onMove: (evt) => {
-    // Разрешаем дроп только в валидный список задач
-    return !!evt?.to?.classList?.contains('task-list')
-  },
+  onMove: onTasksMove,
   onStart: onTasksStart,
   onEnd: onTasksEnd,
 }
 </script>
 
 <template>
-  <div
-    class="kanban-col flex-none rounded-md bg-transparent"
-    :class="idx === 0 ? 'is-static' : 'col-draggable'"
-  >
+  <div class="kanban-col flex-none rounded-md bg-transparent" :class="idx === 0 ? 'is-static' : 'col-draggable'">
     <!-- Header -->
     <div class="rounded-t-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
       <div class="h-3 w-full rounded-t-md" :style="{ backgroundColor: col.hex }"></div>
@@ -81,7 +84,7 @@ const taskDragOptions = {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9A1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .67.39 1.27 1 1.51H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a2 2 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1Z"/>
           </svg>
         </button>
       </div>
@@ -89,7 +92,6 @@ const taskDragOptions = {
 
     <!-- Tasks list (draggable) -->
     <div class="rounded-b-md border border-gray-200 dark:border-gray-700 dark:bg-gray-900">
-      <!-- ключ для форс-рендера Sortable -->
       <div
         :key="'tasks-'+(col.code ?? col.id)+'-'+refresh"
         v-draggable="[col.tasks, taskDragOptions]"
@@ -97,20 +99,12 @@ const taskDragOptions = {
         :style="{ maxHeight: 'calc(100vh - 260px)' }"
         :data-col-id="col.code ?? col.id"
       >
-        <!-- ВАЖНО: Оборачиваем TaskCard, чтобы на DOM-узле был data-task-id и класс task-card -->
-        <div
-          v-for="task in col.tasks"
-          :key="task.id"
-          class="task-card"
-          :data-task-id="task.id"
-        >
+        <div v-for="task in col.tasks" :key="task.id" class="task-card" :data-task-id="task.id">
           <TaskCard :task="task" />
         </div>
 
-        <div
-          v-if="!col.tasks?.length"
-          class="p-4 text-sm text-gray-400 dark:text-gray-500 border border-dashed rounded-md text-center"
-        >
+        <div v-if="!col.tasks?.length"
+             class="p-4 text-sm text-gray-400 dark:text-gray-500 border border-dashed rounded-md text-center">
           Drop here
         </div>
       </div>
@@ -119,10 +113,7 @@ const taskDragOptions = {
 </template>
 
 <style scoped>
-/* Первая и так не двигается (в отдельном контейнере) */
 .is-static {}
-
-/* Визуальные классы для Sortable */
 .drag-ghost { opacity: .5; }
 .drag-chosen { opacity: .9; }
 </style>

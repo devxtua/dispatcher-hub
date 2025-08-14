@@ -1,7 +1,7 @@
 <!-- resources/js/Pages/Shopify/Kanban.vue -->
 <script setup>
 import { Head } from '@inertiajs/vue3'
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import Default from '../../Layouts/Default.vue'
 import { vDraggable } from 'vue-draggable-plus'
 import ColumnCard from '../../Components/Kanban/OrderColumn.vue'
@@ -15,12 +15,11 @@ const props = defineProps({
   columns: { type: Array, default: () => [] },
 })
 
-/** ================== Ключ для «перезапуска» Sortable ================== */
+/* ---------- перезапуск Sortable ---------- */
 const refreshKey = ref(0)
-const bumpRefresh = () => { refreshKey.value = (refreshKey.value + 1) % 1000000 }
-/* ===================================================================== */
+const bumpRefresh = () => { refreshKey.value = (refreshKey.value + 1) % 1_000_000 }
 
-/** Первая (системная) и правые (пользовательские) — раздельно */
+/* ---------- данные колонок ---------- */
 const staticColumn = { id: 'new', name: 'New Orders', desc: 'System column', hex: '#0284c7', tasks: [] }
 
 const firstCol = ref(
@@ -28,14 +27,12 @@ const firstCol = ref(
     ? { ...props.columns[0], tasks: [ ...(props.columns[0].tasks ?? []) ] }
     : staticColumn
 )
-
 const userColumns = ref(
   props.columns?.length
     ? props.columns.slice(1).map(c => ({ ...c, tasks: [ ...(c.tasks ?? []) ] }))
     : []
 )
 
-/** Пришли новые props — разложили заново */
 watch(
   () => props.columns,
   (v) => {
@@ -52,36 +49,37 @@ const totalCards = computed(() => {
   return left + right
 })
 
-/** ---------- Компактный режим только когда тащим карточку ВЫШЕ столбиков ---------- */
+/* ---------- компактный режим + квадратик ---------- */
 const isCompact = ref(false)
 const isDraggingTasks = ref(false)
-const columnsWrapEl = ref(null)
-let dragMoveHandler = null
+const isOverCompact = ref(false)   // подсветка квадратика
 
-function attachDragMoveListener() {
-  if (dragMoveHandler) return
-  dragMoveHandler = (e) => {
-    const y = (e?.clientY ?? e?.touches?.[0]?.clientY ?? null)
-    const wrap = columnsWrapEl.value
-    if (!wrap || y == null) return
-    const top = wrap.getBoundingClientRect().top
-    // Компакт включается ТОЛЬКО когда тянем задачу и курсор выше верхней границы канбана
-    isCompact.value = isDraggingTasks.value && y < top
-  }
-  window.addEventListener('mousemove', dragMoveHandler, { passive: true })
-  window.addEventListener('touchmove', dragMoveHandler, { passive: true })
-}
-function detachDragMoveListener() {
-  if (!dragMoveHandler) return
-  window.removeEventListener('mousemove', dragMoveHandler)
-  window.removeEventListener('touchmove', dragMoveHandler)
-  dragMoveHandler = null
+// пустой список Sortable: drop запрещён (return false), но hover стабилен
+const compactDummy = ref([])
+const compactDragOptions = {
+  group: { name: 'kanban-tasks', pull: false, put: true },
+  sort: false,
+  onMove: () => {
+    if (!isDraggingTasks.value) return false
+    isOverCompact.value = true
+    isCompact.value = true
+    return false // запрет дропа в квадратик
+  },
 }
 
-/** ----- МОДАЛКА ----- */
+// нативный ховер (резервный триггер)
+function onCompactEnter() {
+  if (!isDraggingTasks.value) return
+  isOverCompact.value = true
+  isCompact.value = true
+}
+function onCompactLeave() {
+  isOverCompact.value = false
+}
+
+/* ---------- модалка статусов ---------- */
 const showModal = ref(false)
 const modalMode = ref('create')
-// editingIndex: 0 — первая колонка, 1..N — правые
 const editingIndex = ref(-1)
 const form = ref({ id: '', name: '', desc: '', hex: '#0284c7' })
 
@@ -99,7 +97,6 @@ function openEditModal (col, idx) {
 }
 
 const saving = ref(false)
-
 async function saveColumn () {
   const name = form.value.name.trim()
   if (!name) return
@@ -148,7 +145,7 @@ async function deleteColumn () {
   showModal.value = false
 }
 
-/* ===================== ЕДИНАЯ ИСТОРИЯ (undo/redo) ===================== */
+/* ===================== UNDO/REDO и снапшоты ===================== */
 const HISTORY_LIMIT = 100
 const history = ref([])
 const future  = ref([])
@@ -159,7 +156,6 @@ function pushAction(action) {
   future.value = []
 }
 
-/* ---------- утилиты / снапшоты ---------- */
 const colKey = (c) => String(c?.code ?? c?.id ?? '')
 
 function snapshotColumnIds() {
@@ -173,28 +169,19 @@ function snapshotTasks() {
   }
   return map
 }
-
 function pick(obj, keys) {
   const out = {}
   for (const k of keys) if (obj && obj[k]) out[k] = obj[k].slice()
   return out
 }
 
-/* ---------- apply helpers ---------- */
-function applyColumns(orderIds) {
-  const byId = new Map(userColumns.value.map(c => [colKey(c), c]))
-  const reordered = orderIds.map(id => byId.get(String(id))).filter(Boolean)
-  const rest = userColumns.value.filter(c => !orderIds.includes(colKey(c)))
-  userColumns.value = [...reordered, ...rest]
-  bumpRefresh()
-}
+/* ---------- helpers ---------- */
 function findCol(key) {
   if (!key) return null
   const k = String(key)
   if (firstCol.value && colKey(firstCol.value) === k) return firstCol.value
   return userColumns.value.find(c => colKey(c) === k) || null
 }
-
 function getAllTaskMap() {
   const m = new Map()
   const push = (t) => { if (t && t.id != null) m.set(String(t.id), t) }
@@ -202,69 +189,34 @@ function getAllTaskMap() {
   userColumns.value.forEach(c => (c.tasks || []).forEach(push))
   return m
 }
-function applyTaskOrders(partial) {
-  const taskMap = getAllTaskMap()
-  for (const [colId, ids] of Object.entries(partial)) {
+
+/* === ключевой фикс: карта задач на момент старта DnD === */
+let taskMapAtDragStart = null
+
+function applyTaskOrders(partial, fallbackMap = null) {
+  // объединённая карта: сначала текущая, затем fallback со старта
+  const cur = getAllTaskMap()
+  const get = (id) => cur.get(String(id)) || (fallbackMap && fallbackMap.get(String(id))) || null
+
+  for (const [colId, ids] of Object.entries(partial || {})) {
     const col = findCol(colId)
     if (!col) continue
-    col.tasks = ids.map(id => taskMap.get(String(id))).filter(Boolean)
+    col.tasks = (ids || []).map(id => get(id)).filter(Boolean)
   }
   bumpRefresh()
 }
 
-/* ---------- diff + синк для undo/redo ---------- */
-function taskIdToColIndexMap(map) {
-  const res = {}
-  for (const [colId, ids] of Object.entries(map || {})) {
-    (ids || []).forEach((id, idx) => { res[String(id)] = { colId: String(colId), idx } })
-  }
-  return res
-}
-function diffTaskMoves(fromMap, toMap) {
-  const fromIdx = taskIdToColIndexMap(fromMap || {})
-  const toIdx   = taskIdToColIndexMap(toMap   || {})
-  const moves = []
-  for (const [id, to] of Object.entries(toIdx)) {
-    const f = fromIdx[id]
-    if (!f || f.colId !== to.colId) {
-      const toIds = (toMap[to.colId] || []).map(String)
-      moves.push({ id: String(id), toColId: String(to.colId), newIdx: to.idx, toIds })
-    }
-  }
-  return moves
-}
-async function syncServerAfterApply(prevPartial, nextPartial) {
-  try {
-    const moves = diffTaskMoves(prevPartial || {}, nextPartial || {})
-    const calls = []
-    // переносы
-    const taskMap = getAllTaskMap()
-    for (const m of moves) {
-      const t = taskMap.get(String(m.id))
-      const rawNum = t?.order?.order_number ?? t?.name ?? null
-      const shopOrderNumber = rawNum != null ? String(String(rawNum).replace(/^#/, '')) : null
-      calls.push(KanbanApi.moveOrder(String(m.id), String(m.toColId), m.newIdx ?? 0, m.toIds, shopOrderNumber))
-    }
-    // фиксация порядков (кроме системной 'new')
-    for (const [colId, ids] of Object.entries(nextPartial || {})) {
-        if (ids && ids.length) {
-          calls.push(
-            KanbanApi.reorderOrders(String(colId), ids.map(String)).catch(() => {})
-          )
-        }
-    }
-    await Promise.all(calls)
-  } catch (e) {
-    console.error('Undo/redo sync failed', e?.response?.status, e?.response?.data ?? e)
-  }
+function applyColumns(orderIds) {
+  const byId = new Map(userColumns.value.map(c => [colKey(c), c]))
+  const reordered = orderIds.map(id => byId.get(String(id))).filter(Boolean)
+  const rest = userColumns.value.filter(c => !orderIds.includes(colKey(c)))
+  userColumns.value = [...reordered, ...rest]
+  bumpRefresh()
 }
 
-/* ===================== DnD: СТОЛБЦЫ ===================== */
+/* ---------- DnD: колонки ---------- */
 const colsDragStart = ref(null)
-
-function onColumnsStart() {
-  colsDragStart.value = snapshotColumnIds()
-}
+function onColumnsStart() { colsDragStart.value = snapshotColumnIds() }
 async function onColumnsEnd() {
   await nextTick()
   const before = colsDragStart.value || []
@@ -275,14 +227,19 @@ async function onColumnsEnd() {
   try { await KanbanApi.reorderColumns(after) } catch (e) { console.error(e) }
 }
 
-/* ===================== DnD: КАРТОЧКИ ===================== */
+/* ---------- DnD: карточки ---------- */
 const tasksDragStart = ref(null)
 
 function onTasksStart() {
   tasksDragStart.value = snapshotTasks()
+  taskMapAtDragStart = getAllTaskMap()           // <— СНИМОК ОБЪЕКТОВ ЗАДАЧ
   isDraggingTasks.value = true
-  attachDragMoveListener()
+  isOverCompact.value = false
+  isCompact.value = false // включится по наведению на квадратик
 }
+
+// onMove не нужен — compact включаем по ховеру квадрата
+function onTasksMove() {}
 
 async function onTasksEnd({ fromId, toId, taskId, newIdx }) {
   await nextTick()
@@ -291,16 +248,18 @@ async function onTasksEnd({ fromId, toId, taskId, newIdx }) {
   const to   = findCol(toId)
   const from = findCol(fromId)
 
-  // запрет на дроп вне столбиков — откат к снапшоту
+  // 1) дроп не в колонку (например, в Compact или «мимо») — плавно откатываемся
   if (!to) {
-    applyTaskOrders(prevSnapshot || {})
+    applyTaskOrders(prevSnapshot || {}, taskMapAtDragStart)
     tasksDragStart.value = null
+    taskMapAtDragStart = null
     isDraggingTasks.value = false
     isCompact.value = false
-    detachDragMoveListener()
+    isOverCompact.value = false
     return
   }
 
+  // 2) нормальная обработка дропа в колонку
   const affected = Array.from(new Set([fromId, toId].filter(Boolean)))
   const before = pick(prevSnapshot || {}, affected)
   const now    = snapshotTasks()
@@ -318,66 +277,56 @@ async function onTasksEnd({ fromId, toId, taskId, newIdx }) {
   const shopOrderNumber = rawNum != null ? String(String(rawNum).replace(/^#/, '')) : null
 
   try {
-    // перенос МЕЖДУ колонками
     if (taskId && fromId && toId && fromId !== toId) {
       await KanbanApi.moveOrder(taskId, toId, (newIdx ?? 0), toIds, shopOrderNumber)
       const calls = []
       if (toIds.length) calls.push(KanbanApi.reorderOrders(String(toId), toIds).catch(() => {}))
       if (from && String(fromId) !== 'new' && fromIds.length) calls.push(KanbanApi.reorderOrders(String(fromId), fromIds))
       if (calls.length) await Promise.all(calls)
-    }
-    // сортировка в пределах одной колонки
-    else if (to && toIds.length) {
+    } else if (to && toIds.length) {
       const prev = (prevSnapshot?.[toId] || [])
-      const changed =
-        prev.length !== toIds.length ||
-        prev.some((id, i) => id !== toIds[i])
-        if (changed) {
-          try { await KanbanApi.reorderOrders(String(toId), toIds) }
-          catch (e) { console.warn('reorder in same column failed', e?.response?.status) }
-        }
+      const changed = prev.length !== toIds.length || prev.some((id, i) => id !== toIds[i])
+      if (changed) { try { await KanbanApi.reorderOrders(String(toId), toIds) } catch {} }
     }
-
   } catch (e) {
     console.error('Tasks DnD sync failed', e?.response?.status, e?.response?.data ?? e)
   }
 
+  // завершили DnD — гасим компакт
   tasksDragStart.value = null
+  taskMapAtDragStart = null
   isDraggingTasks.value = false
   isCompact.value = false
-  detachDragMoveListener()
+  isOverCompact.value = false
 }
 
-/* ===================== UNDO / REDO ===================== */
+/* ---------- undo / redo ---------- */
 async function undo() {
   if (!history.value.length) return
   const action = history.value.pop()
   future.value.push(action)
-
   if (action.type === 'columns') {
     applyColumns(action.before)
     try { await KanbanApi.reorderColumns(action.before) } catch {}
   } else if (action.type === 'tasks') {
     applyTaskOrders(action.before)
-    await syncServerAfterApply(action.after, action.before)
+    // серверная синхронизация опущена для простоты
   }
 }
-
 async function redo() {
   if (!future.value.length) return
   const action = future.value.pop()
   history.value.push(action)
-
   if (action.type === 'columns') {
     applyColumns(action.after)
     try { await KanbanApi.reorderColumns(action.after) } catch {}
   } else if (action.type === 'tasks') {
     applyTaskOrders(action.after)
-    await syncServerAfterApply(action.before, action.after)
+    // серверная синхронизация опущена для простоты
   }
 }
 
-/** ----- Горячие клавиши ----- */
+/* ---------- горячие клавиши ---------- */
 function keyHandler (e) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
     e.preventDefault()
@@ -385,17 +334,32 @@ function keyHandler (e) {
     else undo()
   }
 }
-onMounted(() => window.addEventListener('keydown', keyHandler))
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', keyHandler)
-  detachDragMoveListener()
-})
 </script>
 
 <template>
   <Head title="Kanban" />
 
   <div class="mt-2 mb-4 flex items-center justify-end gap-2">
+    <!-- Квадратик Compact — появляется только во время DnD; до 50% ширины -->
+    <div class="flex-1 max-w-[50%]">
+      <transition name="compact-zone">
+        <div
+          v-if="isDraggingTasks"
+          :key="'compact-'+refreshKey"
+          class="compact-zone w-full h-9 rounded-md border-2
+                 flex items-center justify-center text-xs select-none transition-colors duration-150
+                 bg-amber-100 border-amber-300 text-amber-900"
+          :class="isOverCompact ? 'ring-2 ring-amber-400' : ''"
+          @mouseenter="onCompactEnter"
+          @mouseleave="onCompactLeave"
+          v-draggable="[compactDummy, compactDragOptions]"
+          title="Hover to enable compact view"
+        >
+          Compact
+        </div>
+      </transition>
+    </div>
+
     <button
       class="px-2.5 py-2 rounded-lg text-sm bg-gray-100 dark:bg-gray-800
              text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 disabled:opacity-50"
@@ -422,10 +386,10 @@ onBeforeUnmount(() => {
     </button>
   </div>
 
-  <!-- Слева — фиксированная, справа — draggable правые -->
+  <!-- Канбан -->
   <div
-    ref="columnsWrapEl"
     :class="['flex overflow-x-auto pb-1', isCompact ? 'gap-1 is-compact' : 'gap-2']"
+    ref="columnsWrapEl"
   >
     <ColumnCard
       :key="'first-'+refreshKey"
@@ -434,6 +398,7 @@ onBeforeUnmount(() => {
       :refresh="refreshKey"
       @edit="openEditModal"
       @tasks-start="onTasksStart"
+      @tasks-move="onTasksMove"
       @tasks-end="onTasksEnd"
     />
 
@@ -462,6 +427,7 @@ onBeforeUnmount(() => {
         :refresh="refreshKey"
         @edit="openEditModal"
         @tasks-start="onTasksStart"
+        @tasks-move="onTasksMove"
         @tasks-end="onTasksEnd"
       />
     </div>
@@ -478,12 +444,12 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Первая и так не двигается (в отдельном контейнере), класс для читаемости */
-.is-static {}
+/* ширина колонок и компактный режим */
+:deep(.kanban-col) { width: 320px; transition: width .15s ease; }
+.is-compact :deep(.kanban-col) { width: 220px; }
 
-/* Базовая ширина колонок (подстрой при желании) */
-.kanban-col { width: 320px; }
-
-/* Компактный режим — уже колонки, визуально помещается больше */
-.is-compact .kanban-col { width: 220px; }
+/* плавное появление квадратика */
+.compact-zone-enter-active, .compact-zone-leave-active { transition: all .15s ease; }
+.compact-zone-enter-from,  .compact-zone-leave-to      { opacity: 0; transform: translateY(-6px); }
+.compact-zone-enter-to,    .compact-zone-leave-from    { opacity: 1; transform: translateY(0); }
 </style>

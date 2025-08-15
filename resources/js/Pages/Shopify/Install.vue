@@ -8,6 +8,8 @@ const props = defineProps({
   appLogo: { type: String, default: '' },
   apiKey:  { type: String, required: true },
   // NEW: state from server (see controller snippet below)
+  redirect: { type: String, required: true },
+  scopes:   { type: Array,  default: () => [] },
   state:   { type: String, default: '' },
   // Optional: request per-user tokens
   perUser: { type: Boolean, default: true },
@@ -18,8 +20,8 @@ const shopInput = ref(props.shop ?? '')
 const busy = ref(false)
 
 // OAuth config (ensure redirect is whitelisted in your app settings)
-const APP_REDIRECT = 'https://tandooria.com/authenticate'
-const SCOPES = ['read_orders','write_orders'] // add yours
+const APP_REDIRECT = props.redirect
+const SCOPES = Array.isArray(props.scopes) ? props.scopes : String(props.scopes || '').split(',').map(s=>s.trim()).filter(Boolean)
 
 // Helpers
 function cleanShop(raw) {

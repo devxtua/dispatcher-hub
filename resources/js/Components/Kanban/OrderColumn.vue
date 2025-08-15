@@ -100,7 +100,7 @@ const taskDragOptions = computed(() => ({
       <div
         :key="'tasks-'+(col.code ?? col.id)+'-'+refresh"
         v-draggable="[col.tasks, taskDragOptions]"
-        class="task-list flex flex-col gap-2 p-2 px-0 overflow-y-auto"
+        class="task-list flex flex-col gap-2 p-2 px-1 overflow-y-auto"
         :style="{ maxHeight: 'calc(100vh - 260px)' }"
         :data-col-id="col.code ?? col.id"
       >

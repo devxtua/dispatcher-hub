@@ -51,12 +51,12 @@ const formattedDate = computed(() =>
         </div>
 
         <!-- Dashboard link -->
-        <div class="mt-6">
+        <!-- <div class="mt-6">
           <Link :href="`/shop/dashboard${host ? `?host=${host}` : ''}`"
                 class="inline-block px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
             Перейти в Dashboard
           </Link>
-        </div>
+        </div> -->
       </header>
     </div>
   </main>

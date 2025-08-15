@@ -45,9 +45,17 @@ const totalCards = computed(() => {
 })
 
 /* ---------- компактный режим ---------- */
-const isCompact = ref(false)
+// stickyCompact — «липкий» режим по кнопке
+// dragCompactLatched — «защёлка» на время текущего перетаскивания, если пользователь навёл на широкую компакт-зону
+const stickyCompact = ref(false)
+const dragCompactLatched = ref(false)
+const isCompact = ref(false)       // итоговый флаг (липкий или временный)
 const isDraggingTasks = ref(false)
 const isOverCompact = ref(false)
+
+function recalcCompact () {
+  isCompact.value = !!(stickyCompact.value || dragCompactLatched.value || (isDraggingTasks.value && isOverCompact.value))
+}
 
 const compactDummy = ref([])
 const compactDragOptions = {
@@ -56,16 +64,27 @@ const compactDragOptions = {
   onMove: () => {
     if (!isDraggingTasks.value) return false
     isOverCompact.value = true
-    isCompact.value = true
+    // как только попали в зону — «защёлкиваем» компакт до конца этого DnD
+    dragCompactLatched.value = true
+    recalcCompact()
     return false
   },
 }
 function onCompactEnter () {
   if (!isDraggingTasks.value) return
   isOverCompact.value = true
-  isCompact.value = true
+  dragCompactLatched.value = true
+  recalcCompact()
 }
-function onCompactLeave () { isOverCompact.value = false }
+function onCompactLeave () {
+  // выходим курсором из зоны, но режим остаётся активным за счёт «защёлки»
+  isOverCompact.value = false
+  recalcCompact()
+}
+function toggleStickyCompact () {
+  stickyCompact.value = !stickyCompact.value
+  recalcCompact()
+}
 
 /* === CSS-переменные: ширина колонок и высота зоны приёма под шапкой === */
 const COL_W_NORMAL = 320
@@ -212,7 +231,8 @@ function onTasksStart() {
   tasksDragStart.value = snapshotTasks()
   isDraggingTasks.value = true
   isOverCompact.value = false
-  isCompact.value = false // включится по наведению на «Compact»
+  dragCompactLatched.value = false
+  recalcCompact() // включится по наведению на «Compact»
 }
 function onTasksMove() {}
 
@@ -268,8 +288,9 @@ async function onTasksEnd({ fromId, toId, taskId, newIdx }) {
   // выход из DnD
   tasksDragStart.value = null
   isDraggingTasks.value = false
-  isCompact.value = false
   isOverCompact.value = false
+  dragCompactLatched.value = false
+  recalcCompact()
 }
 
 /* ---------- undo / redo ---------- */
@@ -343,7 +364,7 @@ function keyHandler (e) {
     <div class="flex-1 max-w-[30%]">
       <transition name="compact-zone">
         <div
-          v-if="isDraggingTasks"
+          v-if="isDraggingTasks && !stickyCompact"
           :key="'compact-'+refreshKey"
           class="compact-zone w-full h-9 rounded-md border-2
                  flex items-center justify-center text-xs select-none transition-colors duration-150
@@ -358,6 +379,18 @@ function keyHandler (e) {
         </div>
       </transition>
     </div>
+
+    <!-- Всегда видимая маленькая кнопка-переключатель -->
+    <button
+      class="px-2 py-1 rounded-md text-xs border border-gray-300 dark:border-gray-700
+             bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200
+             hover:bg-gray-100 dark:hover:bg-gray-800"
+      :aria-pressed="stickyCompact"
+      @click="toggleStickyCompact"
+      :title="stickyCompact ? 'Show full cards' : 'Show headers only'"
+    >
+      {{ stickyCompact ? 'Normal mode' : 'Compact' }}
+    </button>
 
     <button class="px-2.5 py-2 rounded-lg text-sm bg-gray-100 dark:bg-gray-800
                    text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 disabled:opacity-50"
@@ -374,12 +407,15 @@ function keyHandler (e) {
   </div>
 
   <!-- Канбан -->
-  <div :class="['flex pb-1', isCompact ? 'gap-1 is-compact flex-wrap' : 'gap-2 overflow-x-auto']">
+  <div :class="['flex pb-1',
+                isCompact ? 'gap-1 is-compact flex-wrap' : 'gap-2 overflow-x-auto',
+                stickyCompact ? 'sticky-compact' : '']">
     <ColumnCard
       :key="'first-'+refreshKey"
       :col="firstCol"
       :idx="0"
       :refresh="refreshKey"
+      :disable-tasks="stickyCompact"
       @edit="openEditModal"
       @tasks-start="onTasksStart"
       @tasks-move="onTasksMove"
@@ -409,6 +445,7 @@ function keyHandler (e) {
         :col="col"
         :idx="i + 1"
         :refresh="refreshKey"
+        :disable-tasks="stickyCompact"
         @edit="openEditModal"
         @tasks-start="onTasksStart"
         @tasks-move="onTasksMove"
@@ -435,6 +472,11 @@ function keyHandler (e) {
    поэтому drop возможен прямо по шапке. Дополнительно делаем большую «подушку»
    под шапкой через ::before. */
 .is-compact :deep(.kanban-col){ position: relative; }
+
+/* Чуть стабилизируем высоту хедера в компактном режиме, чтобы не «дёргалось» при DnD колонок */
+.is-compact :deep(.col-header){
+  min-height: 84px; /* подберите под вашу шапку */
+}
 
 .is-compact :deep(.task-list){
   position: absolute;
@@ -466,6 +508,18 @@ function keyHandler (e) {
   outline-offset: 0;
   border-radius: .5rem;
 }
+
+/* В компактном (включая липкий) режиме прячем плейсхолдер, чтобы на шапках не было штрихпунктира и текста */
+.is-compact :deep(.empty-placeholder),
+.sticky-compact :deep(.empty-placeholder){
+  display: none !important;
+  pointer-events: none !important;
+}
+
+
+/* ЛИПКИЙ компакт: списки полностью выключены, чтобы не мешали DnD колонок */
+.sticky-compact :deep(.task-list){ display: none !important; pointer-events: none !important; }
+.sticky-compact :deep(.kanban-col:hover .task-list){ outline: none !important; }
 
 /* плавное появление квадратика */
 .compact-zone-enter-active, .compact-zone-leave-active { transition: all .15s ease; }

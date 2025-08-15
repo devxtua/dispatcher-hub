@@ -1,12 +1,15 @@
 <!-- resources/js/Components/Kanban/OrderColumn.vue -->
 <script setup>
 import { vDraggable } from 'vue-draggable-plus'
+import { computed } from 'vue'
 import TaskCard from './OrderColumnCard.vue'
 
 const props = defineProps({
   col: { type: Object, required: true },
   idx: { type: Number, required: true },
   refresh: { type: Number, default: 0 },
+  // когда true — задачи не перетаскиваются (липкий компакт), но колонки можно таскать
+  disableTasks: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['edit', 'tasks-start', 'tasks-end', 'tasks-move'])
@@ -33,7 +36,7 @@ const onTasksMove = (evt, originalEvent) => {
   return insideTaskList || isCompactZone
 }
 
-const taskDragOptions = {
+const baseTaskDragOptions = {
   group: { name: 'kanban-tasks', pull: true, put: true },
   animation: 200,
   filter: 'textarea, input, button, .is-editing',
@@ -48,12 +51,16 @@ const taskDragOptions = {
   onStart: onTasksStart,
   onEnd: onTasksEnd,
 }
+const taskDragOptions = computed(() => ({
+  ...baseTaskDragOptions,
+  disabled: props.disableTasks,
+}))
 </script>
 
 <template>
   <div class="kanban-col flex-none rounded-md bg-transparent" :class="idx === 0 ? 'is-static' : 'col-draggable'">
     <!-- Header -->
-    <div class="rounded-t-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <div class="col-header rounded-t-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
       <div class="h-3 w-full rounded-t-md" :style="{ backgroundColor: col.hex }"></div>
 
       <div class="px-4 py-3 flex items-start justify-between">
@@ -102,7 +109,7 @@ const taskDragOptions = {
         </div>
 
         <div v-if="!col.tasks?.length"
-             class="p-4 text-sm text-gray-400 dark:text-gray-500 border border-dashed rounded-md text-center">
+             class="empty-placeholder p-4 text-sm text-gray-400 dark:text-gray-500 border border-dashed rounded-md text-center">
           Drop here
         </div>
       </div>

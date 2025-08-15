@@ -96,7 +96,7 @@ const taskDragOptions = computed(() => ({
     </div>
 
     <!-- Tasks list (draggable) -->
-    <div class="rounded-b-md border border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+    <div class="dark:border-gray-700 dark:bg-gray-900">
       <div
         :key="'tasks-'+(col.code ?? col.id)+'-'+refresh"
         v-draggable="[col.tasks, taskDragOptions]"
